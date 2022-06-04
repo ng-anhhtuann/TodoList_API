@@ -2,6 +2,12 @@ package com.todo.todolist.repository;
 
 import com.todo.todolist.model.TodoItem;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class TodoRepository {
@@ -50,8 +56,29 @@ public class TodoRepository {
         Collections.sort(todoItemList);
     }
     //Get all the List
-    public List<TodoItem> getAll() {
+    public List<TodoItem> getAll()  {
         Collections.sort(todoItemList);
         return todoItemList;
+    }
+    public String getInfoHttpMapping(String name){
+        String responseInfo;
+        try {
+            URL url = new URL("https://api.github.com/users/" + name);
+            HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+            httpURLConnection.setRequestMethod("GET");
+            try(BufferedReader br = new BufferedReader(
+                    new InputStreamReader(httpURLConnection.getInputStream(), StandardCharsets.UTF_8))) {
+                StringBuilder response = new StringBuilder();
+                String responseLine;
+                while ((responseLine = br.readLine()) != null) {
+                    response.append(responseLine.trim());
+                }
+                System.out.println(response);
+                responseInfo = response.toString();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return responseInfo;
     }
 }
